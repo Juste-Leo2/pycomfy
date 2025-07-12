@@ -1,0 +1,45 @@
+# Ce workflow publie votre paquet sur PyPI quand une release est créée sur GitHub
+# ou quand vous poussez un tag qui commence par 'v' (ex: v0.4.0)
+
+name: Upload Python Package to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Se déclenche sur les tags comme v1.0, v0.4.1, etc.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Spécifie que le job a besoin d'un jeton d'identité pour s'authentifier auprès de PyPI
+    permissions:
+      id-token: write
+
+    # Spécifie l'environnement de déploiement (correspond au champ de l'étape 1)
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pycomfy
+
+    steps:
+    # 1. Récupère le code de votre dépôt
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Installe Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    # 3. Installe les dépendances de build
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip build
+
+    # 4. Construit le paquet
+    - name: Build package
+      run: python -m build
+
+    # 5. Publie le paquet sur PyPI
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
